@@ -1,7 +1,7 @@
 # OpenVPN for Docker on ARM with MQTT support (RaspberryPi)
 
 This is a fork from giggio/docker-openvpn-arm (https://github.com/giggio/docker-openvpn-arm) focused on ARM.
-Original fork from kylemanna/docker-openvpn (https://github.com/kylemanna/docker-openvpn).
+Original forked from kylemanna/docker-openvpn (https://github.com/kylemanna/docker-openvpn).
 
 MQTT notification on connect to OpenVPN Server via Mosquitto added.
 
