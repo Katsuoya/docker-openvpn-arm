@@ -271,12 +271,32 @@ if [ -f "$OVPN_ENV" ]; then
 fi
 export | grep OVPN_ > "$OVPN_ENV"
 
+notify=${OPENVPN:-}/notify.sh
+if [ -f "notify" ]; then
+    notifybak=$notify.$(date +%s).bak
+    echo "Backing up $notify -> $notifybak"
+    mv "$notify" "$notifybak"
+fi
+
 conf=${OPENVPN:-}/openvpn.conf
 if [ -f "$conf" ]; then
     bak=$conf.$(date +%s).bak
     echo "Backing up $conf -> $bak"
     mv "$conf" "$bak"
 fi
+
+
+cat <<'EOT' > "$notify"
+$message="<b>OpenVPN Connection</b>
+<code>Connection Info
+X.509 Name: $common_name
+Public IP: $trusted_ip
+VPN IP: $ifconfig_remote</code>"
+
+mosquitto_pub -h YOURMQTTIP -p PORT -u USER -P PASSWD -i CLIENTNAME -t TOPPIC -m "$message"
+EOT
+chmod 500 "$notify"
+
 
 cat > "$conf" <<EOF
 server $(getroute $OVPN_SERVER)
@@ -333,6 +353,10 @@ fi
 
 echo -e "\n### Extra Configurations Below" >> "$conf"
 cat $TMP_EXTRA_CONFIGFILE >> "$conf"
+
+# Add notifycation
+echo -e "\nscript-security 2" >> "$conf"
+echo -e "--client-connect /etc/openvpn/notify.sh" >> "$conf"
 
 set +e
 
